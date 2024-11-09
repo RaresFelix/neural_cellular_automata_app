@@ -7,6 +7,7 @@ let session = null; // ONNX Runtime session
 let feeds = null; // Current input tensor
 let speedInterval = null; // Interval ID for evolution loop
 let isRunning = false; // Flag to indicate if evolution is running
+let isMouseDown = false; // Flag to indicate if mouse is down
 
 /**
  * Initializes the ONNX Runtime session and the initial input tensor.
@@ -52,6 +53,9 @@ async function initializeModel() {
         feeds = { [inputName]: inputTensor };
 
         console.log(`Initialization complete.`);
+        
+        // Start evolution automatically
+        startEvolution();
     } catch (err) {
         console.error(`Error loading model: ${err.message}`);
     }
@@ -273,6 +277,62 @@ function handleSpeedChange() {
     }
 }
 
+/**
+ * Handles click events on the canvas
+ * @param {MouseEvent} event - The click event
+ */
+function handleCanvasErase(event) {
+    const canvas = event.target;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    // Calculate click position in canvas coordinates
+    const x = Math.floor((event.clientX - rect.left) * scaleX);
+    const y = Math.floor((event.clientY - rect.top) * scaleY);
+    
+    // Erase circle and update simulation
+    eraseCircle(x, y, 5); // 5 pixel radius
+}
+
+/**
+ * Erases a circle in the current simulation state
+ * @param {number} centerX - Circle center X coordinate
+ * @param {number} centerY - Circle center Y coordinate
+ * @param {number} radius - Circle radius in pixels
+ */
+function eraseCircle(centerX, centerY, radius) {
+    if (!feeds || !session) return;
+
+    const inputTensor = feeds[session.inputNames[0]];
+    const data = inputTensor.data;
+    const [batchSize, channels, height, width] = inputTensor.dims;
+
+    // Iterate over pixels in bounding box of circle
+    for (let y = Math.max(0, centerY - radius); y < Math.min(height, centerY + radius); y++) {
+        for (let x = Math.max(0, centerX - radius); x < Math.min(width, centerX + radius); x++) {
+            // Check if pixel is within circle
+            const dx = x - centerX;
+            const dy = y - centerY;
+            if (dx * dx + dy * dy <= radius * radius) {
+                // Erase all channels at this position
+                const pixelIndex = y * width + x;
+                for (let c = 0; c < channels; c++) {
+                    data[c * height * width + pixelIndex] = 0;
+                }
+            }
+        }
+    }
+
+    // Update feeds with modified data
+    feeds = { [session.inputNames[0]]: new ort.Tensor('float32', data, inputTensor.dims) };
+    
+    // Force immediate visualization update
+    const ctx = canvas.getContext('2d');
+    const mappingOption = document.getElementById('mapping').value;
+    renderVisualization(data, width, height, ctx, mappingOption);
+}
+
 // Attach event listeners once the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the model
@@ -298,4 +358,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     stopButton.addEventListener('click', stopEvolution);
     speedSlider.addEventListener('input', handleSpeedChange);
+
+    // Replace canvas click listener with new listeners
+    addCanvasListeners();
 });
+
+function addCanvasListeners() {
+    const canvas = document.getElementById('rgba-canvas');
+    
+    canvas.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        handleCanvasErase(e);
+    });
+    
+    canvas.addEventListener('mousemove', (e) => {
+        if (isMouseDown) {
+            handleCanvasErase(e);
+        }
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+        isMouseDown = false;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+        isMouseDown = false;
+    });
+}
