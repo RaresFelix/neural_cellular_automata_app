@@ -293,7 +293,7 @@ function handleCanvasErase(event) {
     const y = Math.floor((event.clientY - rect.top) * scaleY);
     
     // Erase circle and update simulation
-    eraseCircle(x, y, 5); // 5 pixel radius
+    eraseCircle(x, y, 5, canvas); // Pass canvas reference
 }
 
 /**
@@ -301,8 +301,9 @@ function handleCanvasErase(event) {
  * @param {number} centerX - Circle center X coordinate
  * @param {number} centerY - Circle center Y coordinate
  * @param {number} radius - Circle radius in pixels
+ * @param {HTMLCanvasElement} canvas - The canvas element
  */
-function eraseCircle(centerX, centerY, radius) {
+function eraseCircle(centerX, centerY, radius, canvas) { // Add canvas parameter
     if (!feeds || !session) return;
 
     const inputTensor = feeds[session.inputNames[0]];
