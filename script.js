@@ -11,14 +11,15 @@ let isMouseDown = false; // Flag to indicate if mouse is down
 
 /**
  * Initializes the ONNX Runtime session and the initial input tensor.
+ * @param {string} modelPath - The path to the ONNX model file.
  */
-async function initializeModel() {
-    console.log(`Loading model...`);
+async function initializeModel(modelPath) {
+    console.log(`Loading model from ${modelPath}...`);
 
     try {
-        // Initialize ONNX Runtime session
-        session = await ort.InferenceSession.create('model.onnx');
-        console.log(`Model loaded successfully.`);
+        // Initialize ONNX Runtime session with the selected model
+        session = await ort.InferenceSession.create(modelPath);
+        console.log(`Model loaded successfully from ${modelPath}.`);
 
         // Define input dimensions
         const batchSize = 1;      // Typically 1 for single inference
@@ -335,8 +336,24 @@ function eraseCircle(centerX, centerY, radius) {
 
 // Attach event listeners once the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the model
-    initializeModel();
+    // Initialize the model with the default selection
+    const modelSelect = document.getElementById('model-select');
+    initializeModel(modelSelect.value);
+
+    // Add event listener for model selection change
+    modelSelect.addEventListener('change', async () => {
+        // If the simulation is running, stop it
+        if (isRunning) {
+            stopEvolution();
+        }
+
+        // Reinitialize the model with the selected model
+        await initializeModel(modelSelect.value);
+
+        // Start the evolution
+        startEvolution();
+        console.log(`Model changed to ${modelSelect.selectedOptions[0].text}.`);
+    });
 
     const restartButton = document.getElementById('restart-button');
     const stopButton = document.getElementById('stop-button');
