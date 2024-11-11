@@ -3,11 +3,17 @@
  * Handles the functionality for Neural Cellular Automata Visualization.
  */
 
+const DEBUG_MODE = false; // Set to true to enable dropdown for model selection
+
 let session = null; // ONNX Runtime session
 let feeds = null; // Current input tensor
 let speedInterval = null; // Interval ID for evolution loop
 let isRunning = false; // Flag to indicate if evolution is running
 let isMouseDown = false; // Flag to indicate if mouse is down
+
+// Add a global variable to store the current and last selected mapping
+let currentMapping = 'rgba'; // Default mapping
+let lastSelectedMapping = 'rgba'; // Last permanently selected mapping
 
 /**
  * Initializes the ONNX Runtime session and the initial input tensor.
@@ -36,14 +42,14 @@ async function initializeModel(modelPath) {
         const centerIndex = centerY * width + centerX;
 
         // Set RGBA channels of the center pixel to represent a gray cell
-        inputData[0 * height * width + centerIndex] = 0.5; // Red
-        inputData[1 * height * width + centerIndex] = 0.5; // Green
-        inputData[2 * height * width + centerIndex] = 0.5; // Blue
-        inputData[3 * height * width + centerIndex] = 1.0; // Alpha
+        inputData[0 * height * width + centerIndex] = 0.8; // Red
+        inputData[1 * height * width + centerIndex] = 0.8; // Green
+        inputData[2 * height * width + centerIndex] = 0.8; // Blue
+        inputData[3 * height * width + centerIndex] = 0.8; // Alpha
 
         // Set remaining channels to 0 if needed
         for (let c = 4; c < channels; c++) {
-            inputData[c * height * width + centerIndex] = 0.0;
+            inputData[c * height * width + centerIndex] = 0.8;
         }
 
         // Create an ONNX tensor for the initial input
@@ -118,17 +124,12 @@ function getIntervalFromSpeed(speedValue) {
 async function runStep() {
     const canvas = document.getElementById('rgba-canvas');
     const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false; // Disable smoothing for pixelated look
+    ctx.imageSmoothingEnabled = false;
 
-    // Retrieve user inputs
-    const threshold = parseFloat(document.getElementById('threshold').value) || 0.1;
-    const mappingOption = document.getElementById('mapping').value;
+    const mappingOption = currentMapping;
 
     try {
-        // Run the model
         const results = await session.run(feeds);
-
-        // Extract output (assuming single output; adjust if multiple)
         const outputName = session.outputNames[0];
         const output = results[outputName];
 
@@ -138,14 +139,12 @@ async function runStep() {
         let sum = 0;
         let max = -Infinity;
         let min = Infinity;
-        let activeCells = 0;
 
         for (let i = 0; i < totalElements; i++) {
             const value = data[i];
             sum += value;
             if (value > max) max = value;
             if (value < min) min = value;
-            if (value > threshold) activeCells++;
         }
 
         const average = sum / totalElements;
@@ -155,7 +154,6 @@ async function runStep() {
         console.log(`  Average Activation: ${average.toFixed(4)}`);
         console.log(`  Max Activation: ${max.toFixed(4)}`);
         console.log(`  Min Activation: ${min.toFixed(4)}`);
-        console.log(`  Active Cells (> ${threshold}): ${activeCells}`);
         console.log('----------------------------------------');
 
         // Prepare the output as the next input
@@ -195,43 +193,32 @@ function renderVisualization(data, width, height, ctx, mapping) {
 
             let r = 0, g = 0, b = 0, a = 255; // Default Alpha to 255
 
-            switch(mapping) {
-                case 'rgba':
-                    r = data[channelOffsets[0] + pixelIndex];
-                    g = data[channelOffsets[1] + pixelIndex];
-                    b = data[channelOffsets[2] + pixelIndex];
-                    a = data[channelOffsets[3] + pixelIndex];
-                    break;
-                case 'r':
-                    r = data[channelOffsets[0] + pixelIndex];
-                    g = 0;
-                    b = 0;
-                    a = 255;
-                    break;
-                case 'g':
-                    r = 0;
-                    g = data[channelOffsets[1] + pixelIndex];
-                    b = 0;
-                    a = 255;
-                    break;
-                case 'b':
-                    r = 0;
-                    g = 0;
-                    b = data[channelOffsets[2] + pixelIndex];
-                    a = 255;
-                    break;
-                case 'a':
-                    r = 0;
-                    g = 0;
-                    b = 0;
-                    a = data[channelOffsets[3] + pixelIndex];
-                    break;
-                // Add more cases if needed
-                default:
-                    r = data[channelOffsets[0] + pixelIndex];
-                    g = data[channelOffsets[1] + pixelIndex];
-                    b = data[channelOffsets[2] + pixelIndex];
-                    a = data[channelOffsets[3] + pixelIndex];
+            if (mapping.startsWith('c')) {
+                // Handle cell channels (4-15) as grayscale
+                const channelNum = parseInt(mapping.slice(1));
+                const value = data[channelOffsets[channelNum] + pixelIndex];
+                r = g = b = value;
+            } else {
+                switch(mapping) {
+                    case 'rgba':
+                        r = data[channelOffsets[0] + pixelIndex];
+                        g = data[channelOffsets[1] + pixelIndex];
+                        b = data[channelOffsets[2] + pixelIndex];
+                        a = data[channelOffsets[3] + pixelIndex];
+                        break;
+                    case 'r':
+                        r = data[channelOffsets[0] + pixelIndex];
+                        break;
+                    case 'g':
+                        g = data[channelOffsets[1] + pixelIndex];
+                        break;
+                    case 'b':
+                        b = data[channelOffsets[2] + pixelIndex];
+                        break;
+                    case 'a':
+                        r = g = b = data[channelOffsets[3] + pixelIndex];
+                        break;
+                }
             }
 
             // Normalize and map to [0, 255]
@@ -261,6 +248,12 @@ function renderVisualization(data, width, height, ctx, mapping) {
  */
 function clamp(num, min, max) {
     return Math.min(Math.max(num, min), max);
+}
+
+// Add this helper function after clamp()
+function getModelNameFromPath(path) {
+    // Extract filename from path and remove .onnx extension
+    return path.split('/').pop();
 }
 
 /**
@@ -331,47 +324,130 @@ function eraseCircle(centerX, centerY, radius, canvas) { // Add canvas parameter
     
     // Force immediate visualization update
     const ctx = canvas.getContext('2d');
-    const mappingOption = document.getElementById('mapping').value;
+    const mappingOption = currentMapping;
     renderVisualization(data, width, height, ctx, mappingOption);
 }
 
-// Attach event listeners once the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the model with the default selection
-    const modelSelect = document.getElementById('model-select');
-    initializeModel(modelSelect.value);
-
-    // Add event listener for model selection change
-    modelSelect.addEventListener('change', async () => {
-        // If the simulation is running, stop it
-        if (isRunning) {
-            stopEvolution();
+/**
+ * Populates the model selection UI based on DEBUG_MODE.
+ */
+async function populateModelSelect() {
+    try {
+        // Fetch models list
+        const response = await fetch('/api/models');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const models = await response.json();
+        
+        // Fetch model-emoji mappings
+        const emojiResponse = await fetch('models.json');
+        if (!emojiResponse.ok) {
+            throw new Error(`HTTP error! status: ${emojiResponse.status}`);
+        }
+        const modelEmojis = await emojiResponse.json();
+        
+        const modelSelect = document.getElementById('model-select');
+        const emojiContainer = document.getElementById('model-emoji-container');
+        modelSelect.innerHTML = ''; // Clear existing options
+        emojiContainer.innerHTML = ''; // Clear existing emojis
+        
+        if (DEBUG_MODE) {
+            // Populate dropdown menu
+            if (models.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No models available';
+                modelSelect.appendChild(option);
+                modelSelect.disabled = true;
+                console.log('No models found in models directory');
+                return;
+            }
+            
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.path;
+                option.textContent = model.name;
+                modelSelect.appendChild(option);
+            });
+            
+            // Initialize with the first model
+            if (models.length > 0) {
+                await initializeModel(models[0].path);
+            }
+        } else {
+            // Populate emoji-based radio buttons
+            if (models.length === 0) {
+                const span = document.createElement('span');
+                span.textContent = 'No models available';
+                emojiContainer.appendChild(span);
+                return;
+            }
+            
+            models.forEach(model => {
+                const label = document.createElement('label');
+                label.classList.add('emoji-radio');
+                
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'model';
+                radio.value = model.path;
+                if (model === models[0]) radio.checked = true;
+                
+                const emoji = document.createElement('span');
+                const modelName = getModelNameFromPath(model.path);
+                emoji.textContent = modelEmojis[modelName] || '❓';
+                
+                label.appendChild(radio);
+                label.appendChild(emoji);
+                emojiContainer.appendChild(label);
+                
+                // Add event listener for radio buttons
+                radio.addEventListener('change', async () => {
+                    await initializeModel(model.path);
+                });
+            });
+            
+            // Initialize with the first model
+            if (models.length > 0) {
+                await initializeModel(models[0].path);
+            }
+        }
+    } catch (err) {
+        console.error('Error loading models list:', err);
+        const modelSelect = document.getElementById('model-select');
+        modelSelect.innerHTML = '<option value="">Error loading models</option>';
+        modelSelect.disabled = true;
+    }
+}
 
-        // Reinitialize the model with the selected model
-        await initializeModel(modelSelect.value);
-
-        // Start the evolution
-        startEvolution();
-        console.log(`Model changed to ${modelSelect.selectedOptions[0].text}.`);
-    });
-
+// Modify the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+    // Replace the existing model initialization with populateModelSelect
+    populateModelSelect();
+    
+    const modelSelect = document.getElementById('model-select');
+    const emojiContainer = document.getElementById('model-emoji-container'); // New container
     const restartButton = document.getElementById('restart-button');
     const stopButton = document.getElementById('stop-button');
     const speedSlider = document.getElementById('speed');
 
+    if (DEBUG_MODE) {
+        modelSelect.addEventListener('change', async () => {
+            if (isRunning) {
+                stopEvolution();
+            }
+            await initializeModel(modelSelect.value);
+        });
+    }
+
     restartButton.addEventListener('click', async () => {
-        // If the simulation is running, stop it
         if (isRunning) {
             stopEvolution();
         }
-
-        // Reinitialize the model with a gray cell
-        await initializeModel();
-
-        // Start the evolution
-        startEvolution();
-        console.log(`Model restarted with a gray cell.`);
+        // Reinitialize with current model path
+        const selectedModel = DEBUG_MODE ? modelSelect.value : document.querySelector('input[name="model"]:checked').value;
+        await initializeModel(selectedModel);
     });
 
     stopButton.addEventListener('click', stopEvolution);
@@ -379,7 +455,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Replace canvas click listener with new listeners
     addCanvasListeners();
+
+    // Channel mapping dropdown listeners (moved outside DEBUG_MODE condition)
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+        item.addEventListener('mouseover', () => {
+            const value = item.getAttribute('data-value');
+            updateMapping(value, false);
+        });
+
+        item.addEventListener('click', () => {
+            const value = item.getAttribute('data-value');
+            updateMapping(value, true);
+        });
+    });
+
+    const dropdownContent = document.querySelector('.dropdown-content');
+    dropdownContent.addEventListener('mouseleave', () => {
+        currentMapping = lastSelectedMapping;
+        // Re-render the visualization with the last selected mapping
+        const canvas = document.getElementById('rgba-canvas');
+        const ctx = canvas.getContext('2d');
+        const data = feeds[session.inputNames[0]].data;
+        const dims = feeds[session.inputNames[0]].dims;
+        renderVisualization(data, dims[2], dims[3], ctx, currentMapping);
+    });
 });
+
+/**
+ * Updates the channel mapping and re-renders the visualization.
+ * @param {string} mapping - The selected channel mapping option.
+ * @param {boolean} isPermanent - Flag indicating if the mapping is permanent (clicked) or temporary (hovered).
+ */
+function updateMapping(mapping, isPermanent = false) {
+    if (isPermanent) {
+        // Update the last selected mapping
+        lastSelectedMapping = mapping;
+        // Update the dropdown button text
+        document.querySelector('.dropdown-button').textContent = getMappingLabel(mapping);
+    } else {
+        // Temporary mapping on hover
+        currentMapping = mapping;
+    }
+
+    // Re-render the visualization with the current mapping
+    const canvas = document.getElementById('rgba-canvas');
+    const ctx = canvas.getContext('2d');
+    const data = feeds[session.inputNames[0]].data;
+    const dims = feeds[session.inputNames[0]].dims;
+    renderVisualization(data, dims[2], dims[3], ctx, currentMapping);
+}
+
+/**
+ * Returns the display label for a given mapping value.
+ * @param {string} mapping - The mapping value.
+ * @returns {string} - The display label.
+ */
+function getMappingLabel(mapping) {
+    const labels = {
+        'rgba': 'RGBA (Channels 0-3)',
+        'r': 'Red (Channel 0)',
+        'g': 'Green (Channel 1)',
+        'b': 'Blue (Channel 2)',
+        'a': 'Alpha (Channel 3)',
+        'c4': 'Cell Channel 4',
+        'c5': 'Cell Channel 5',
+        'c6': 'Cell Channel 6',
+        'c7': 'Cell Channel 7',
+        'c8': 'Cell Channel 8',
+        'c9': 'Cell Channel 9',
+        'c10': 'Cell Channel 10',
+        'c11': 'Cell Channel 11',
+        'c12': 'Cell Channel 12',
+        'c13': 'Cell Channel 13',
+        'c14': 'Cell Channel 14',
+        'c15': 'Cell Channel 15'
+    };
+    return labels[mapping] || 'RGBA (Channels 0-3)';
+}
 
 function addCanvasListeners() {
     const canvas = document.getElementById('rgba-canvas');
