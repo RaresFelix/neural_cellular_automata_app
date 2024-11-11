@@ -1,113 +1,339 @@
 /* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #fafafa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    min-height: 100vh;
+    color: #2d3748;
 }
 
 header, footer {
     text-align: center;
     margin-bottom: 20px;
+    color: #333; /* Darker text for better contrast */
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a365d;
+    margin: 0;
+    padding: 1rem 0;
 }
 
 main {
-    max-width: 800px;
+    max-width: 1200px; /* Increased from 900px */
     margin: 0 auto;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 /* Controls Section */
 #controls {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
-    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .control-group {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 150px;
+    min-width: 180px;
+    max-width: 250px;
+    flex: 0 1 auto;
+    margin: 0;
 }
 
-#controls input[type="number"],
+.control-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
 #controls select,
 #controls input[type="range"] {
-    padding: 5px 10px;
-    font-size: 14px;
+    padding: 8px 12px; /* Increased padding for better touch targets */
+    font-size: 16px; /* Larger font for readability */
+    border: 1px solid #ccc;
+    border-radius: 4px; /* Rounded corners for inputs */
+    margin-bottom: 1.5rem; /* Add space below the slider */
 }
 
 #controls input[type="range"] {
     width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    margin-bottom: 0.5rem;
+}
+
+#controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #4299e1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#controls input[type="range"]::-webkit-slider-thumb:hover {
+    background: #3182ce;
+    transform: scale(1.1);
 }
 
 .speed-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .speed-labels span {
     flex: 1;
     text-align: center;
+    color: #555; /* Softer text color for labels */
 }
 
 /* Icon Buttons */
 .icon-button {
-    background-color: #4CAF50; /* Green background for Restart */
+    background: #4299e1;
     border: none;
     color: white;
-    padding: 10px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 18px;
-    margin-top: 22px; /* Align with other controls */
+    padding: 0.75rem;
+    border-radius: 50%;
     cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s, opacity 0.3s;
-    width: 50px;
-    height: 50px;
-    display: flex;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+    margin: 0;
 }
 
 .icon-button:hover {
-    background-color: #45a049;
+    background: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
 }
 
 #stop-button {
-    background-color: #f44336; /* Red background for Stop */
+    background: #fc8181;
 }
 
 #stop-button:hover {
-    background-color: #da190b;
+    background: #f56565;
 }
 
 /* Disabled Button Style */
 .icon-button:disabled {
-    opacity: 0.6; /* Reduced opacity to indicate disabled state without changing color */
+    background: #e2e8f0;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Canvas Section */
 #canvas-container {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 canvas {
-    image-rendering: pixelated; /* Ensure the canvas is pixelated when scaled */
-    border: 1px solid #000;
-    width: 640px; /* Default width */
-    height: 640px; /* Default height */
+    image-rendering: pixelated;
+    border: 3px solid #4299e1;
+    border-radius: 8px;
+    max-width: 512px;
+    width: 100%;
+    height: auto;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
 }
 
 /* Model Selection Dropdown */
 #model-select {
-    padding: 5px 10px;
-    font-size: 14px;
+    padding: 8px 12px;
+    font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dropdown-button:hover {
+    border-color: #4299e1;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 0;
+    border: 2px solid #e2e8f0;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background: #ebf8ff;
+    color: #4299e1;
+}
+
+.custom-dropdown:hover .dropdown-content {
+    display: block;
+    margin-top: 2px; /* Small gap to prevent mouse leaving the hover area */
+}
+
+/* Emoji Radio Buttons */
+#model-emoji-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.emoji-radio {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.emoji-radio:hover {
+    transform: scale(1.1);
+}
+
+.emoji-radio input[type="radio"] {
+    display: none; /* Hide the default radio button */
+}
+
+.emoji-radio span {
+    margin-left: 5px;
+}
+
+.emoji-radio input[type="radio"]:checked + span {
+    display: inline-block;
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 2px #4299e1);
+    outline: 2px solid #007BFF; /* Highlight selected emoji */
+    border-radius: 50%;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .icon-button {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+
+    .emoji-radio {
+        font-size: 20px;
+    }
+}
+
+/* Fix buttons layout */
+.control-group:last-child {
+    min-width: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    #controls {
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: none;
+    }
+
+    .control-group {
+        max-width: none;
+    }
+
+    .control-group:last-child {
+        justify-content: flex-start;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    #controls {
+        flex-wrap: wrap;
+    }
+    
+    .control-group {
+        flex: 1 1 200px;
+    }
+    
+    .control-group:last-child {
+        margin-left: 0;
+    }
 }

@@ -15,6 +15,11 @@
       referrerpolicy="no-referrer"
     />
     
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Include the ONNX Runtime Web library -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
     
@@ -29,30 +34,30 @@
     <main>
         <section id="controls">
             <div class="control-group">
-                <label for="steps">Number of Initial Updates:</label>
-                <input type="number" id="steps" value="10" min="1" max="1000">
-            </div>
-            
-            <div class="control-group">
-                <label for="scale">Scale:</label>
-                <input type="number" id="scale" value="10" min="1" max="20">
-            </div>
-            
-            <div class="control-group">
-                <label for="threshold">Active Threshold:</label>
-                <input type="number" id="threshold" value="0.1" step="0.01" min="0" max="1">
-            </div>
-            
-            <div class="control-group">
                 <label for="mapping">Channel Mapping:</label>
-                <select id="mapping">
-                    <option value="rgba">RGBA (Channels 0-3)</option>
-                    <option value="r">Red (Channel 0)</option>
-                    <option value="g">Green (Channel 1)</option>
-                    <option value="b">Blue (Channel 2)</option>
-                    <option value="a">Alpha (Channel 3)</option>
-                    <!-- Add more options if needed -->
-                </select>
+                <!-- Replace the standard select with a custom dropdown -->
+                <div class="custom-dropdown" id="mapping-dropdown">
+                    <button class="dropdown-button">RGBA (Channels 0-3)</button>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item" data-value="rgba">RGBA (Channels 0-3)</div>
+                        <div class="dropdown-item" data-value="r">Red (Channel 0)</div>
+                        <div class="dropdown-item" data-value="g">Green (Channel 1)</div>
+                        <div class="dropdown-item" data-value="b">Blue (Channel 2)</div>
+                        <div class="dropdown-item" data-value="a">Alpha (Channel 3)</div>
+                        <div class="dropdown-item" data-value="c4">Cell Channel 4</div>
+                        <div class="dropdown-item" data-value="c5">Cell Channel 5</div>
+                        <div class="dropdown-item" data-value="c6">Cell Channel 6</div>
+                        <div class="dropdown-item" data-value="c7">Cell Channel 7</div>
+                        <div class="dropdown-item" data-value="c8">Cell Channel 8</div>
+                        <div class="dropdown-item" data-value="c9">Cell Channel 9</div>
+                        <div class="dropdown-item" data-value="c10">Cell Channel 10</div>
+                        <div class="dropdown-item" data-value="c11">Cell Channel 11</div>
+                        <div class="dropdown-item" data-value="c12">Cell Channel 12</div>
+                        <div class="dropdown-item" data-value="c13">Cell Channel 13</div>
+                        <div class="dropdown-item" data-value="c14">Cell Channel 14</div>
+                        <div class="dropdown-item" data-value="c15">Cell Channel 15</div>
+                    </div>
+                </div>
             </div>
             
             <div class="control-group">
@@ -72,11 +77,12 @@
             <div class="control-group">
                 <label for="model-select">Select Model:</label>
                 <select id="model-select">
-                    <option value="models/model_Rainbow_20k_32.onnx">Rainbow 20k 32</option>
-                    <option value="models/model_BlueWave.onnx">Blue Wave</option>
-                    <option value="models/model_GreenForest.onnx">Green Forest</option>
-                    <!-- Add more models as needed -->
+                    <!-- Options will be populated dynamically -->
                 </select>
+                <!-- New Emoji-based Model Selector -->
+                <div id="model-emoji-container" style="display: none;">
+                    <!-- Emoji radio buttons will be populated dynamically -->
+                </div>
             </div>
             
             <button id="restart-button" class="icon-button" title="Restart">
@@ -87,13 +93,26 @@
             </button>
         </section>
         
-        <!-- Removed the output-section since statistics are moved to console -->
-        
         <section id="canvas-container">
             <h2>RGBA Visualization</h2>
             <canvas id="rgba-canvas" width="64" height="64"></canvas>
         </section>
     </main>
-    
+
+    <!-- Add this script to toggle model selectors based on DEBUG_MODE -->
+    <script>
+        // Assuming DEBUG_MODE is defined in script.js
+        document.addEventListener('DOMContentLoaded', () => {
+            const modelSelect = document.getElementById('model-select');
+            const emojiContainer = document.getElementById('model-emoji-container');
+            if (DEBUG_MODE) {
+                modelSelect.style.display = 'block';
+                emojiContainer.style.display = 'none';
+            } else {
+                modelSelect.style.display = 'none';
+                emojiContainer.style.display = 'flex';
+            }
+        });
+    </script>
 </body>
 </html>
