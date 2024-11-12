@@ -194,6 +194,7 @@ canvas {
     width: 100%;
     height: auto;
     box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+    cursor: crosshair;
 }
 
 /* Model Selection Dropdown */
@@ -424,4 +425,26 @@ canvas {
 .explanation-box p {
     font-size: 1rem;
     color: #2d3748;
+}
+
+/* Add styles for the interaction hint */
+.interaction-hint {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.interaction-hint i {
+    color: #4299e1;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }

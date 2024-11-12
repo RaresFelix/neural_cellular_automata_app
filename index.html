@@ -100,6 +100,9 @@
         <section id="canvas-container">
             <h2>RGBA Visualization</h2>
             <canvas id="rgba-canvas" width="64" height="64"></canvas>
+            <p class="interaction-hint">
+                <i class="fas fa-mouse-pointer"></i> Click and drag on the image to erase parts and watch it regenerate!
+            </p>
         </section>
     </main>
 
@@ -108,8 +111,8 @@
         <h2>About This App</h2>
         <p>Each pixel from the grid represents a cell. Each cell has four values that determine its color: red, green, blue, and transparency (alpha). We consider cells with less than 0.1 alpha (transparent) to be dead. In addition to the color channels, each cell has 12 extra channels that store arbitrary information. You can visualize them through the interface, and quite interestingly you can see patterns emerge! For example, in the lizard emoji model, channel 6 appears to indicate whether a cell is on the edge of the organism, which is very useful to know if you don't want to grow indefinitely.</p>
 
-
-        <!-- Add Model Structure Image -->
+        <p><strong>Interactive Features:</strong> Try clicking and dragging on the image to erase parts of it. Watch how the neural cellular automata regenerates the damaged areas! Different models may react and regenerate differently.</p>
+        
         <img src="model_structure.svg" alt="Model Structure Diagram" class="model-structure-image">
         <p class="attribution">Adapted from Growing Neural Cellular Automata, Mordvintsev et al. (Distill, 2020)</p>
 
