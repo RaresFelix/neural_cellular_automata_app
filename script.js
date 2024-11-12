@@ -333,25 +333,25 @@ function eraseCircle(centerX, centerY, radius, canvas) { // Add canvas parameter
  */
 async function populateModelSelect() {
     try {
-        // Fetch models list
-        const response = await fetch('/api/models');
+        // Fetch models list from models.json
+        const response = await fetch('models.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const models = await response.json();
-        
-        // Fetch model-emoji mappings
-        const emojiResponse = await fetch('models.json');
-        if (!emojiResponse.ok) {
-            throw new Error(`HTTP error! status: ${emojiResponse.status}`);
-        }
-        const modelEmojis = await emojiResponse.json();
-        
+        const modelEmojis = await response.json();
+
+        // Convert modelEmojis to models array
+        const models = Object.keys(modelEmojis).map(file => ({
+            name: file.replace('.onnx', '').replace(/_/g, ' '),
+            path: `models/${file}`, // Ensure models are in the 'models' folder
+            emoji: modelEmojis[file]
+        }));
+
         const modelSelect = document.getElementById('model-select');
         const emojiContainer = document.getElementById('model-emoji-container');
         modelSelect.innerHTML = ''; // Clear existing options
         emojiContainer.innerHTML = ''; // Clear existing emojis
-        
+
         if (DEBUG_MODE) {
             // Populate dropdown menu
             if (models.length === 0) {
@@ -395,8 +395,7 @@ async function populateModelSelect() {
                 if (model === models[0]) radio.checked = true;
                 
                 const emoji = document.createElement('span');
-                const modelName = getModelNameFromPath(model.path);
-                emoji.textContent = modelEmojis[modelName] || '❓';
+                emoji.textContent = model.emoji || '❓';
                 
                 label.appendChild(radio);
                 label.appendChild(emoji);
