@@ -28,9 +28,9 @@ header h1 {
 }
 
 main {
-    max-width: 1200px; /* Increased from 900px */
+    max-width: fit-content; /* Adjust width to fit content exactly */
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem; /* Reduce padding for a snug fit */
     background: rgba(255, 255, 255, 0.95);
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
@@ -40,7 +40,7 @@ main {
 /* Controls Section */
 #controls {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap; /* Allow controls to wrap to the next line */
     gap: 1.5rem;
     margin-bottom: 2rem;
     padding: 1.5rem;
@@ -210,13 +210,12 @@ canvas {
 .dropdown-content {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% - 1px); /* Adjust to overlap slightly with the button */
     left: 0;
     right: 0;
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-top: 0;
     border: 2px solid #e2e8f0;
     max-height: 300px;
     overflow-y: auto;
@@ -236,7 +235,7 @@ canvas {
 
 .custom-dropdown:hover .dropdown-content {
     display: block;
-    margin-top: 2px; /* Small gap to prevent mouse leaving the hover area */
+    /* Remove margin-top */
 }
 
 /* Emoji Radio Buttons */
@@ -248,6 +247,7 @@ canvas {
     background: white;
     border-radius: 8px;
     border: 2px solid #e2e8f0;
+    margin-top: 1rem; /* Add space above to prevent overlap */
 }
 
 .emoji-radio {
@@ -255,7 +255,7 @@ canvas {
     align-items: center;
     margin-right: 10px;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1rem; /* Increased by 10% */
     transition: transform 0.2s;
 }
 
@@ -279,6 +279,11 @@ canvas {
     border-radius: 50%;
 }
 
+/* Override control-group font size for emoji radios */
+.control-group .emoji-radio {
+    font-size: 1.3rem !important; /* Higher specificity and !important to ensure override */
+}
+
 /* Responsive Design */
 @media (max-width: 600px) {
     #controls {
@@ -293,7 +298,11 @@ canvas {
     }
 
     .emoji-radio {
-        font-size: 20px;
+        font-size: 22px; /* Increased by 10% */
+    }
+
+    .control-group .emoji-radio {
+        font-size: 22px !important;
     }
 }
 
@@ -312,6 +321,8 @@ canvas {
         grid-template-columns: 1fr;
         width: 100%;
         max-width: none;
+        flex-direction: column; /* Stack controls vertically on smaller screens */
+        align-items: stretch; /* Stretch controls to full width */
     }
 
     .control-group {
@@ -320,6 +331,14 @@ canvas {
 
     .control-group:last-child {
         justify-content: flex-start;
+    }
+
+    #model-emoji-container {
+        margin-top: 0.5rem; /* Reduce margin on smaller screens */
+    }
+
+    main {
+        padding: 0.5rem; /* Further reduce padding for better fit */
     }
 }
 
@@ -336,4 +355,9 @@ canvas {
     .control-group:last-child {
         margin-left: 0;
     }
+}
+
+/* New class for Select Model control group */
+.control-group-model {
+    margin-left: 1.5rem;
 }
