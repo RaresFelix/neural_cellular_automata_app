@@ -399,6 +399,16 @@ canvas {
     text-align: center;
 }
 
+.explanation-box p {
+    font-size: 1rem;
+    color: #2d3748;
+    text-align: left;
+}
+
+.explanation-box p.attribution {
+    text-align: center;
+}
+
 .model-structure-image {
     max-width: 100%;
     height: auto;

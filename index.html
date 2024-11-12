@@ -106,12 +106,17 @@
     <!-- Explanation Box -->
     <div class="explanation-box">
         <h2>About This App</h2>
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac urna nec nunc ultricies ultricies.
-        </p>
+        <p>Each pixel from the grid represents a cell. Each cell has four values that determine its color: red, green, blue, and transparency (alpha). We consider cells with less than 0.1 alpha (transparent) to be dead. In addition to the color channels, each cell has 12 extra channels that store arbitrary information. You can visualize them through the interface, and quite interestingly you can see patterns emerge! For example, in the lizard emoji model, channel 6 appears to indicate whether a cell is on the edge of the organism, which is very useful to know if you don't want to grow indefinitely.</p>
+
+
         <!-- Add Model Structure Image -->
         <img src="model_structure.svg" alt="Model Structure Diagram" class="model-structure-image">
-        <p>Adapted from Growing Neural Cellular Automata, Mordvintsev et al. (Distill, 2020)</p>
+        <p class="attribution">Adapted from Growing Neural Cellular Automata, Mordvintsev et al. (Distill, 2020)</p>
+
+        <p>At each update, a cell examines its neighbors within a 3×3 grid and decides how to update itself based on their values. The models were trained to regenerate the target image even when circular holes were applied during growth. Interestingly, the models can recover from much more severe damage than just circular holes. The mushroom model, in particular, excels at regenerating even when significant portions are erased.</p>
+
+        <p>I learned a lot while implementing this in PyTorch. Initializing the model with zero weights and weight decay (which the article recommended), both seemed to stop the model from learning. Adding noise at each step improved the models' temporal robustness; they became more resilient over time. Currently, only the mushroom model incorporates this, demonstrating strong reactions to extensive damage.</p>
+
     </div>
     
     <!-- footer removed -->
