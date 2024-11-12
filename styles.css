@@ -28,7 +28,7 @@ header h1 {
 }
 
 main {
-    max-width: fit-content; /* Adjust width to fit content exactly */
+    max-width: 1200px; /* Increased from fit-content to 1200px */
     margin: 0 auto;
     padding: 1rem; /* Reduce padding for a snug fit */
     background: rgba(255, 255, 255, 0.95);
@@ -83,6 +83,19 @@ main {
     margin-bottom: 0.5rem;
 }
 
+/* Align the speed slider to full width */
+#controls input[type="range"] {
+    width: 100%;
+}
+
+/* Adjust slider to fit within the control group */
+#controls input[type="range"] {
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0; /* Remove excess margin */
+    padding: 0; /* Remove excess padding if any */
+}
+
 #controls input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 20px;
@@ -105,6 +118,14 @@ main {
     color: #718096;
     margin-top: 0.5rem;
     margin-bottom: 1rem;
+    width: 100%;
+}
+
+/* Ensure speed labels align with the slider */
+.speed-labels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .speed-labels span {
@@ -359,5 +380,38 @@ canvas {
 
 /* New class for Select Model control group */
 .control-group-model {
-    margin-left: 1.5rem;
+    margin-left: 0;
+}
+
+.explanation-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.model-structure-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+}
+
+.explanation-box h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: #1a365d;
+}
+
+.explanation-box p {
+    font-size: 1rem;
+    color: #2d3748;
 }
