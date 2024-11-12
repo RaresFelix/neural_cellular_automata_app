@@ -272,21 +272,32 @@ function handleSpeedChange() {
 }
 
 /**
- * Handles click events on the canvas
- * @param {MouseEvent} event - The click event
+ * Handles click and touch events on the canvas to erase.
+ * @param {MouseEvent|TouchEvent} event - The event object.
  */
 function handleCanvasErase(event) {
     const canvas = event.target;
     const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+
+    if (event.type.startsWith('touch')) {
+        const touch = event.touches[0] || event.changedTouches[0];
+        clientX = touch.clientX;
+        clientY = touch.clientY;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+    
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     
-    // Calculate click position in canvas coordinates
-    const x = Math.floor((event.clientX - rect.left) * scaleX);
-    const y = Math.floor((event.clientY - rect.top) * scaleY);
+    // Calculate position
+    const x = Math.floor((clientX - rect.left) * scaleX);
+    const y = Math.floor((clientY - rect.top) * scaleY);
     
-    // Erase circle and update simulation
-    eraseCircle(x, y, 5, canvas); // Pass canvas reference
+    // Erase circle at position
+    eraseCircle(x, y, 5, canvas);
 }
 
 /**
@@ -536,6 +547,7 @@ function getMappingLabel(mapping) {
 function addCanvasListeners() {
     const canvas = document.getElementById('rgba-canvas');
     
+    // Mouse Events
     canvas.addEventListener('mousedown', (e) => {
         isMouseDown = true;
         handleCanvasErase(e);
@@ -552,6 +564,28 @@ function addCanvasListeners() {
     });
     
     canvas.addEventListener('mouseleave', () => {
+        isMouseDown = false;
+    });
+
+    // Touch Events
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        isMouseDown = true;
+        handleCanvasErase(e);
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        if (isMouseDown) {
+            handleCanvasErase(e);
+        }
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', () => {
+        isMouseDown = false;
+    });
+    
+    canvas.addEventListener('touchcancel', () => {
         isMouseDown = false;
     });
 }
