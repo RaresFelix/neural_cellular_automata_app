@@ -106,16 +106,16 @@ function stopEvolution() {
 function getIntervalFromSpeed(speedValue) {
     // Define speed mappings
     const speedMappings = {
-        0: 200, // 1/10x = 5 steps/sec
-        1: 100, // 1/5x = 10 steps/sec
-        2: 40,  // 1/2x = 25 steps/sec
-        3: 20,  // 1x = 50 steps/sec
-        4: 10,  // 2x = 100 steps/sec
-        5: 5,   // 4x = 200 steps/sec
-        6: 2    // 8x = 400 steps/sec
+        0: 400, // 1/20x = 2.5 steps/sec  (was 200)
+        1: 200, // 1/10x = 5 steps/sec    (was 100)
+        2: 80,  // 1/4x = 12.5 steps/sec  (was 40)
+        3: 40,  // 1/2x = 25 steps/sec    (was 20)
+        4: 20,  // 1x = 50 steps/sec      (was 10)
+        5: 10,  // 2x = 100 steps/sec     (was 5)
+        6: 4    // 4x = 200 steps/sec     (was 2)
     };
 
-    return speedMappings[speedValue] || 20; // Default to 1x if undefined
+    return speedMappings[speedValue] || 40; // Default to 1/2x if undefined (was 20)
 }
 
 /**
