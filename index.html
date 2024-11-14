@@ -119,6 +119,8 @@
         <p>At each update, a cell examines its neighbors within a 3×3 grid and decides how to update itself based on their values. The models were trained to regenerate the target image even when circular holes were applied during growth. Interestingly, the models can recover from much more severe damage than just circular holes. The mushroom model, in particular, excels at regenerating even when significant portions are erased.</p>
 
         <p>I learned a lot while implementing this in PyTorch. Initializing the model with zero weights and weight decay (which the article recommended), both seemed to stop the model from learning. Adding noise at each step improved the models' temporal robustness; they became more resilient over time. Currently, only the mushroom model incorporates this, demonstrating strong reactions to extensive damage.</p>
+        
+        <p>If you're interested in exploring the code behind this app, you can find it on my [GitHub repository](https://github.com/RaresFelix/NeuralCellAutomata). Please note that it's still a work in progress and not fully organized. The `dev.ipynb` notebook is the primary file I used for training and experimentation.</p>
 
     </div>
     
